@@ -8,6 +8,9 @@ on:
       - 'node_binding/package.json'
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 env:
   DEBUG: napi:*
   LPACK_SECURITY_KEY: ${{ secrets.LPACK_SECURITY_KEY || 'demo_security_key_2026_change_me' }}
