@@ -48,8 +48,9 @@ Simulate how the game would load a file (`dialog.txt`). The system checks the hi
 
 ## Structure
 
-The `.pack` file format:
-1. **Header:** Magic `LPACK`, Version.
-2. **Manifest:** JSON Metadata.
-3. **Data:** Compressed file blobs.
-4. **Index:** Directory of file offsets and sizes.
+The `.pack` (or `.lpack`) file format:
+- **MIME Type:** `application/vnd.layerpack`
+- **Header:** Magic `LPACK`, Version.
+- **Manifest:** JSON Metadata.
+- **Data:** Compressed file blobs.
+- **Index:** Directory of file offsets and sizes.

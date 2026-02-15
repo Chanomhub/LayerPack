@@ -1,0 +1,16 @@
+# Source code
+src/
+target/
+Cargo.toml
+Cargo.lock
+build.rs
+test_usage.js
+
+# Git
+.gitignore
+.gitattributes
+.github/
+
+# Misc
+*.lpack
+*.log

@@ -1,0 +1,37 @@
+{
+  "name": "layer-pack-node",
+  "version": "0.1.0",
+  "description": "Native Node.js bindings for LayerPack archive format",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "napi": {
+    "name": "layer-pack-node",
+    "triples": {
+      "defaults": true,
+      "additional": [
+        "x86_64-pc-windows-msvc",
+        "aarch64-apple-darwin",
+        "x86_64-apple-darwin",
+        "x86_64-unknown-linux-gnu"
+      ]
+    }
+  },
+  "license": "MIT",
+  "files": [
+    "index.js",
+    "index.d.ts",
+    "*.node"
+  ],
+  "scripts": {
+    "artifacts": "napi artifacts",
+    "build": "napi build --platform --release",
+    "build:debug": "napi build --platform",
+    "prepublishOnly": "napi prepublish -t npm",
+    "test": "node test_usage.js",
+    "version": "napi version"
+  },
+  "devDependencies": {
+    "@napi-rs/cli": "^2.18.0"
+  },
+  "packageManager": "npm@10.0.0"
+}

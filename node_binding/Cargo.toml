@@ -1,0 +1,25 @@
+[package]
+name = "layer-pack-node"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+# เรียกใช้ napi library
+napi = { version = "2.12", default-features = false, features = ["napi4"] }
+napi-derive = "2.12"
+
+# เรียกใช้โปรเจกต์หลักของเรา (layer_pack) จาก path ด้านนอก
+layer_pack = { path = "../" }
+
+[build-dependencies]
+napi-build = "2.0"
+
+[profile.release]
+strip = true        # ลบ Debug symbols อัตโนมัติ (ลดขนาดได้เยอะที่สุด)
+opt-level = "z"     # ปรับแต่งให้ไฟล์เล็กที่สุด (Size optimization)
+lto = true          # Link Time Optimization แบบเต็มสูบ (เสียเวลา build นานขึ้นหน่อยแต่ไฟล์เล็ก)
+codegen-units = 1   # ยอม build ช้าลงเพื่อให้ optimize ได้ดีขึ้น
+panic = "abort"     # ตัดโค้ด unwind stack ทิ้ง (ประหยัดที่)

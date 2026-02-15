@@ -72,6 +72,7 @@ impl PackBuilder {
                     original_size: content.len() as u64,
                     compressed_size: compressed_data.len() as u64,
                     compression,
+                    encryption: crate::format::EncryptionType::None,
                     hash,
                 });
             }

@@ -31,7 +31,18 @@ enum Commands {
         lang: Option<String>,
         /// Priority (higher wins)
         #[arg(long, default_value_t = 0)]
+        /// Priority (higher wins)
+        #[arg(long, default_value_t = 0)]
         priority: i32,
+        /// Custom Reference/Hash
+        #[arg(long)]
+        r#ref: Option<String>,
+        /// Author Name
+        #[arg(long)]
+        author: Option<String>,
+        /// Website URL
+        #[arg(long)]
+        website: Option<String>,
     },
     /// List files in a pack
     List {
@@ -48,6 +59,13 @@ enum Commands {
         packs: Vec<PathBuf>,
         /// Virtual path to resolve
         path: String,
+    },
+    /// Unpack files from a pack
+    Unpack {
+        /// Pack file
+        pack: PathBuf,
+        /// Output directory
+        output: PathBuf,
     },
 }
 
@@ -78,7 +96,7 @@ fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
 
     match cli.command {
-        Commands::Create { source, output, name, type_, lang, priority } => {
+        Commands::Create { source, output, name, type_, lang, priority, r#ref, author, website } => {
             let manifest = PackManifest {
                 name,
                 pack_type: type_.into(),
@@ -86,9 +104,21 @@ fn main() -> anyhow::Result<()> {
                 priority,
                 description: None,
                 version: Some("1.0".to_string()),
+                custom_ref: r#ref,
+                author,
+                website,
             };
+            let mut output_path = output;
+            if let Some(ext) = output_path.extension() {
+                if ext != "lpack" {
+                     output_path.set_extension("lpack");
+                }
+            } else {
+                output_path.set_extension("lpack");
+            }
+
             let builder = PackBuilder::new(manifest);
-            builder.build(source, output)?;
+            builder.build(source, output_path)?;
             println!("Pack created successfully.");
         }
         Commands::List { pack } => {
@@ -99,6 +129,16 @@ fn main() -> anyhow::Result<()> {
                 loaded.manifest.lang,
                 loaded.manifest.priority
             );
+            println!("MIME Type: {}", layer_pack::format::CONTENT_TYPE);
+            if let Some(r) = &loaded.manifest.custom_ref {
+                println!("Ref: {}", r);
+            }
+            if let Some(a) = &loaded.manifest.author {
+                println!("Author: {}", a);
+            }
+            if let Some(w) = &loaded.manifest.website {
+                println!("Website: {}", w);
+            }
             println!("{:<50} | {:<10} | {:<10} | {:<10}", "Path", "Size", "CmpSize", "Method");
             println!("{:-<90}", "");
             
@@ -161,6 +201,24 @@ fn main() -> anyhow::Result<()> {
                     }
                 }
             }
+        }
+        Commands::Unpack { pack, output } => {
+            let mut loaded = LoadedPack::load(&pack)?;
+            println!("Unpacking {} to {:?}...", pack.display(), output);
+
+            let files = loaded.file_list();
+            for path in files {
+                let content = loaded.read_file(&path)?;
+                let output_path = output.join(&path);
+                
+                if let Some(parent) = output_path.parent() {
+                    std::fs::create_dir_all(parent)?;
+                }
+                
+                std::fs::write(&output_path, content)?;
+                println!("Extracted: {}", path);
+            }
+            println!("Unpack complete.");
         }
     }
 

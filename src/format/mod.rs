@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+pub const CONTENT_TYPE: &str = "application/vnd.layerpack";
+
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum PackType {
@@ -30,6 +32,25 @@ pub struct PackManifest {
     pub priority: i32,
     pub description: Option<String>,
     pub version: Option<String>,
+    #[serde(default)]
+    pub custom_ref: Option<String>,
+    #[serde(default)]
+    pub author: Option<String>,
+    #[serde(default)]
+    pub website: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
+#[serde(rename_all = "lowercase")]
+pub enum EncryptionType {
+    None,
+    Aes256Gcm,
+}
+
+impl Default for EncryptionType {
+    fn default() -> Self {
+        Self::None
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -39,5 +60,7 @@ pub struct FileEntry {
     pub original_size: u64,
     pub compressed_size: u64,
     pub compression: CompressionType,
+    #[serde(default)]
+    pub encryption: EncryptionType,
     pub hash: String, 
 }
