@@ -1,6 +1,7 @@
 use clap::{Parser, Subcommand, ValueEnum};
 use std::path::PathBuf;
 use layer_pack::format::{PackManifest, PackType};
+#[cfg(feature = "builder")]
 use layer_pack::builder::PackBuilder;
 use layer_pack::resolver::{Resolver, LoadedPack};
 
@@ -15,6 +16,7 @@ struct Cli {
 #[derive(Subcommand)]
 enum Commands {
     /// Create a new pack from a directory
+    #[cfg(feature = "builder")]
     Create {
         /// Source directory
         source: PathBuf,
@@ -96,6 +98,7 @@ fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
 
     match cli.command {
+        #[cfg(feature = "builder")]
         Commands::Create { source, output, name, type_, lang, priority, r#ref, author, website } => {
             let manifest = PackManifest {
                 name,
@@ -120,6 +123,10 @@ fn main() -> anyhow::Result<()> {
             let builder = PackBuilder::new(manifest);
             builder.build(source, output_path)?;
             println!("Pack created successfully.");
+        }
+        #[cfg(not(feature = "builder"))]
+        Commands::Create { .. } => {
+            anyhow::bail!("The 'builder' feature is not enabled in this build.");
         }
         Commands::List { pack } => {
             let loaded = LoadedPack::load(pack)?;
