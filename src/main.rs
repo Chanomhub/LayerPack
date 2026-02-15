@@ -1,6 +1,8 @@
 use clap::{Parser, Subcommand, ValueEnum};
 use std::path::PathBuf;
-use layer_pack::format::{PackManifest, PackType};
+use layer_pack::format::PackType;
+#[cfg(feature = "builder")]
+use layer_pack::format::PackManifest;
 #[cfg(feature = "builder")]
 use layer_pack::builder::PackBuilder;
 use layer_pack::resolver::{Resolver, LoadedPack};
@@ -124,10 +126,7 @@ fn main() -> anyhow::Result<()> {
             builder.build(source, output_path)?;
             println!("Pack created successfully.");
         }
-        #[cfg(not(feature = "builder"))]
-        Commands::Create { .. } => {
-            anyhow::bail!("The 'builder' feature is not enabled in this build.");
-        }
+
         Commands::List { pack } => {
             let loaded = LoadedPack::load(pack)?;
             println!("Pack: {} (Type: {:?}, Lang: {:?}, Priority: {})", 
