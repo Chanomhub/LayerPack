@@ -29,7 +29,19 @@ jobs:
       uses: Swatinem/rust-cache@v2
 
     - name: Build
-      run: cargo build --verbose
+      run: cargo build --verbose --release
 
     - name: Run tests
-      run: cargo test --verbose
+      run: cargo test --verbose --release
+
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: layer-pack-${{ matrix.os }}
+        path: |
+          target/release/layer_pack
+          target/release/layer_pack.exe
+          target/release/*.so
+          target/release/*.dll
+          target/release/*.dylib
+        if-no-files-found: ignore
