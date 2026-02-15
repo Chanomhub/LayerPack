@@ -16,6 +16,14 @@
       ]
     }
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Chanomhub/LayerPack.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Chanomhub/LayerPack/issues"
+  },
+  "homepage": "https://github.com/Chanomhub/LayerPack#readme",
   "license": "MIT",
   "files": [
     "index.js",
