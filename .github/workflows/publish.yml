@@ -2,8 +2,11 @@ name: Publish NPM
 
 on:
   push:
-    tags:
-      - 'v*'
+    branches:
+      - main
+    paths:
+      - 'node_binding/package.json'
+  workflow_dispatch:
 
 env:
   DEBUG: napi:*
@@ -45,15 +48,6 @@ jobs:
           VERSION=$(node -p "require('./node_binding/package.json').version")
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Extracted version: $VERSION"
-
-      - name: Verify tag matches version
-        run: |
-          TAG_VERSION=${GITHUB_REF#refs/tags/v}
-          PKG_VERSION=${{ steps.get_version.outputs.version }}
-          if [ "$TAG_VERSION" != "$PKG_VERSION" ]; then
-            echo "Error: Tag version ($TAG_VERSION) does not match package.json version ($PKG_VERSION)"
-            exit 1
-          fi
 
       - name: Setup Node.js (with cache)
         uses: actions/setup-node@v4
