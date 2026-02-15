@@ -1,0 +1,50 @@
+name: Node.js Bindings CI
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+env:
+  DEBUG: napi:*
+  LPACK_SECURITY_KEY: ${{ secrets.LPACK_SECURITY_KEY || 'demo_security_key_2026_change_me' }}
+  LPACK_ENCRYPTION_KEY: ${{ secrets.LPACK_ENCRYPTION_KEY || 'demo_aes_master_key_999_change_me' }}
+
+jobs:
+  build:
+    name: Build & Test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+        cache: 'npm'
+        cache-dependency-path: node_binding/package-lock.json
+
+    - name: Install Rust
+      uses: dtolnay/rust-toolchain@stable
+
+    - name: Rust Cache
+      uses: Swatinem/rust-cache@v2
+      with:
+        workspaces: node_binding -> target
+
+    - name: Install dependencies
+      run: npm install
+      working-directory: node_binding
+
+    - name: Build
+      run: npm run build
+      working-directory: node_binding
+
+    - name: Run tests
+      run: npm test
+      working-directory: node_binding
