@@ -85,44 +85,29 @@ jobs:
           path: node_binding/*.node
           if-no-files-found: error
 
-  publish:
-    name: Publish to NPM
+  release-artifacts:
+    name: Collect Binaries
     runs-on: ubuntu-latest
     needs: build
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          registry-url: 'https://registry.npmjs.org/'
-          cache: 'npm'
-          cache-dependency-path: node_binding/package-lock.json
-
-      - name: Install dependencies
-        run: npm install
-        working-directory: node_binding
-
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
-          path: node_binding/artifacts
+          path: artifacts
 
-      - name: Move artifacts
+      - name: Consolidate Binaries
         run: |
-          find artifacts -type f -name "*.node" -exec mv {} . \;
-        working-directory: node_binding
+          mkdir -p release
+          cp node_binding/package.json release/
+          cp node_binding/index.js release/
+          cp node_binding/index.d.ts release/
+          find artifacts -type f -name "*.node" -exec cp {} release/ \;
+          ls -R release
 
-      - name: List artifacts
-        run: ls -R
-        working-directory: node_binding
-
-      - name: Publish
-        run: |
-          npm run prepublishOnly
-          npm publish --access public
-        working-directory: node_binding
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload Consolidated Release
+        uses: actions/upload-artifact@v4
+        with:
+          name: layer-pack-node-full-release
+          path: release/
